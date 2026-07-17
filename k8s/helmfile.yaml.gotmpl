@@ -1,0 +1,35 @@
+environments:
+  prod:
+    values:
+      - namespace: lastliter
+  test:
+    values:
+      - namespace: lastliter-test
+---
+helmDefaults:
+  kubeContext: kubernetes-admin@kubernetes
+  wait: true
+  timeout: 300
+  atomic: true
+  createNamespace: true
+templates:
+  default:
+    namespace: {{ .Environment.Values.namespace }}
+    chart: ./charts/{{`{{ .Release.Name }}`}}
+    values:
+      - deploy/values/common/common.values.yaml
+      - deploy/values/{{ .Environment.Name }}/common.values.yaml
+    set:
+      - name: environment
+        value: {{ .Environment.Name }}
+      - name: container.tag
+        value: {{ printf "%v" (required "tag is required; pass --state-values-set tag=<value>" (index .Environment.Values "tag")) }}
+    hooks:
+      - events: [cleanup]
+        command: bash
+        args: [-c, "rm -f charts/{{`{{ .Release.Name }}`}}/Chart.lock; rm -rf charts/{{`{{ .Release.Name }}`}}/charts"]
+releases:
+  - name: map
+    inherit:
+      - template: default
+    labels: {svc: map}

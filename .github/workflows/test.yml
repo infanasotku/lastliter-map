@@ -1,0 +1,27 @@
+name: test
+on:
+  push:
+    branches: [test]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build
+        with:
+          environment: test
+          registry_url: ${{ vars.REGISTRY_URL }}
+          registry_username: ${{ secrets.REGISTRY_USERNAME }}
+          registry_password: ${{ secrets.REGISTRY_PASSWORD }}
+  deploy:
+    needs: build
+    runs-on: [self-hosted, helmfile]
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
+        with:
+          environment: test

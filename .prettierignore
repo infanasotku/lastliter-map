@@ -1,0 +1,2 @@
+k8s/charts/**/templates/*.yaml
+k8s/*.gotmpl

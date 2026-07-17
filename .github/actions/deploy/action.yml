@@ -1,0 +1,20 @@
+name: Deploy
+description: Deploy the map Helmfile release
+inputs:
+  environment:
+    description: Deployment environment
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Deploy
+      shell: bash
+      env:
+        TAG: ${{ format('{0}-{1}', inputs.environment, github.run_number) }}
+      run: |
+        cd k8s
+        helmfile -f helmfile.yaml.gotmpl \
+          --state-values-set tag="$TAG" \
+          -e "${{ inputs.environment }}" \
+          -l "svc=map" \
+          --skip-refresh apply
