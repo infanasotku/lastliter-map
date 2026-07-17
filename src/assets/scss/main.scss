@@ -1,0 +1,172 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+:root {
+  color: $text-color;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  min-width: 320px;
+  margin: 0;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.leaflet-container {
+  font: inherit;
+}
+
+.app-map {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #dce8da;
+}
+
+.yandex-logo {
+  position: fixed;
+  z-index: 700;
+  bottom: 0;
+  left: 0;
+  display: block;
+  line-height: 0;
+
+  img {
+    display: block;
+    width: 96px;
+    height: auto;
+  }
+}
+
+.map-error {
+  position: fixed;
+  z-index: 800;
+  top: 20px;
+  left: 20px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #7a271a;
+  background: #fff1ed;
+}
+
+.station-panel {
+  position: fixed;
+  z-index: 600;
+  top: 20px;
+  left: 20px;
+  width: min($panel-width, calc(100% - 40px));
+}
+
+.station-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  button {
+    @include glass-surface;
+
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 10px 13px;
+    overflow: hidden;
+    border-radius: 999px;
+    color: #445049;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.active {
+      border-color: #203b28;
+      color: white;
+      background: #203b28;
+    }
+  }
+}
+
+.tab-dot {
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+
+  &[data-status="yes"] {
+    background: #2f855a;
+  }
+
+  &[data-status="queue"] {
+    background: #f6a723;
+  }
+
+  &[data-status="low"] {
+    background: #f97316;
+  }
+
+  &[data-status="no"] {
+    background: #e5484d;
+  }
+}
+
+.station-marker-shell {
+  border: 0;
+  background: none;
+}
+
+.station-marker {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 4px solid white;
+  border-radius: 50% 50% 50% 8px;
+  background: var(--marker-color);
+  box-shadow: 0 9px 24px rgba(25, 41, 29, 0.34);
+  transform: rotate(-45deg);
+
+  span {
+    width: 10px;
+    height: 10px;
+    border: 3px solid white;
+    border-radius: 50%;
+  }
+}
+
+@media (max-width: $mobile-breakpoint) {
+  .station-panel {
+    top: auto;
+    bottom: 20px;
+  }
+
+  .station-tabs {
+    overflow-x: auto;
+  }
+
+  .yandex-logo {
+    top: 0;
+    bottom: auto;
+  }
+}
