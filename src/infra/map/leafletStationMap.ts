@@ -18,6 +18,7 @@ export interface StationMapHandle {
 interface CreateStationMapOptions {
   element: HTMLElement;
   stations: StationMapItem[];
+  selectedId: string | null;
   onSelect(stationId: string): void;
 }
 
@@ -52,6 +53,7 @@ function fitStations(map: LeafletMap, stations: StationMapItem[]): void {
 export function createLeafletStationMap({
   element,
   stations,
+  selectedId,
   onSelect,
 }: CreateStationMapOptions): StationMapHandle {
   const map = L.map(element, {
@@ -70,13 +72,25 @@ export function createLeafletStationMap({
   }).addTo(map);
   L.control.zoom({ position: "topright" }).addTo(map);
 
+  function markSelected(stationId: string): void {
+    for (const [markerStationId, marker] of markers) {
+      const isSelected = markerStationId === stationId;
+      marker.getElement()?.classList.toggle("is-selected", isSelected);
+      marker.setZIndexOffset(isSelected ? 1000 : 0);
+    }
+  }
+
   for (const station of stations) {
     const marker = createMarker(station).addTo(map);
-    marker.on("click", () => onSelect(station.id));
+    marker.on("click", () => {
+      markSelected(station.id);
+      onSelect(station.id);
+    });
     markers.set(station.id, marker);
   }
 
   fitStations(map, stations);
+  if (selectedId) markSelected(selectedId);
 
   return {
     destroy: () => map.remove(),
@@ -84,6 +98,7 @@ export function createLeafletStationMap({
       const marker = markers.get(stationId);
       if (!marker) return;
 
+      markSelected(stationId);
       map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 14), {
         duration: 0.6,
       });

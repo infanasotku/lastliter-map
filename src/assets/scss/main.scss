@@ -146,6 +146,10 @@ button {
   background: var(--marker-color);
   box-shadow: 0 9px 24px rgba(25, 41, 29, 0.34);
   transform: rotate(-45deg);
+  transition:
+    filter 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
 
   span {
     width: 10px;
@@ -153,6 +157,12 @@ button {
     border: 3px solid white;
     border-radius: 50%;
   }
+}
+
+.station-marker-shell.is-selected .station-marker {
+  filter: brightness(0.68) saturate(1.1);
+  box-shadow: 0 13px 30px rgba(16, 27, 19, 0.45);
+  transform: rotate(-45deg) scale(1.25);
 }
 
 @media (max-width: $mobile-breakpoint) {

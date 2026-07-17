@@ -35,6 +35,7 @@ onMounted(async () => {
     mapHandle = createLeafletStationMap({
       element: mapElement.value,
       stations: stations.value,
+      selectedId: selectedId.value,
       onSelect: (stationId) => selectStation(stationId, false),
     });
   } catch (cause) {
