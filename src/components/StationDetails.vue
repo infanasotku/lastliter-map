@@ -3,6 +3,11 @@ import type { StationMapItem } from "../features/stations/types";
 
 defineProps<{
   station: StationMapItem;
+  canOpen: boolean;
+}>();
+
+defineEmits<{
+  open: [];
 }>();
 </script>
 
@@ -35,6 +40,15 @@ defineProps<{
         <dd>{{ station.observedAtLabel }}</dd>
       </div>
     </dl>
+
+    <button
+      v-if="canOpen"
+      class="open-button"
+      type="button"
+      @click="$emit('open')"
+    >
+      Открыть
+    </button>
   </article>
 </template>
 
@@ -92,6 +106,11 @@ h2 {
   background: #ffe2e0;
 }
 
+.status[data-status="unknown"] {
+  color: #475467;
+  background: #eaecf0;
+}
+
 .address {
   margin: 8px 0 18px;
   color: #657068;
@@ -133,5 +152,20 @@ dd {
   color: #23342a;
   font-size: 13px;
   font-weight: 650;
+}
+
+.open-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 12px;
+  color: white;
+  background: #203b28;
+  font-weight: 700;
+}
+
+.open-button:hover {
+  background: #162b1d;
 }
 </style>

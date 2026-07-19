@@ -1,4 +1,4 @@
-export type StationStatus = "yes" | "queue" | "low" | "no";
+export type StationStatus = "yes" | "queue" | "low" | "no" | "unknown";
 
 export interface Station {
   id: string;
@@ -6,9 +6,9 @@ export interface Station {
   address: string;
   latitude: number;
   longitude: number;
-  status: StationStatus;
-  detail: string;
-  confirmations: number;
-  confidence: number;
-  observedAt: string;
+  status?: StationStatus;
+  detail?: string;
+  confirmations?: number;
+  confidence?: number;
+  observedAt?: string;
 }

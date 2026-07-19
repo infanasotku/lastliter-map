@@ -7,6 +7,7 @@ const statusLabels: Record<StationStatus, string> = {
   queue: "Есть очередь",
   low: "Топливо заканчивается",
   no: "Топлива нет",
+  unknown: "Нет наблюдений",
 };
 
 export class StationService {
@@ -19,20 +20,32 @@ export class StationService {
   async getMapItems(): Promise<StationMapItem[]> {
     const stations = await this.repository.getAll();
 
-    return stations.map((station) => ({
-      id: station.id,
-      name: station.name,
-      address: station.address,
-      position: [station.latitude, station.longitude],
-      status: station.status,
-      statusLabel: statusLabels[station.status],
-      detail: station.detail || "Без дополнительного комментария",
-      confirmationsLabel: `${station.confirmations} подтверждений`,
-      confidenceLabel: `${Math.round(station.confidence * 100)}% уверенности`,
-      observedAtLabel: new Intl.DateTimeFormat("ru-RU", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date(station.observedAt)),
-    }));
+    return stations.map((station) => {
+      const status = station.status ?? "unknown";
+
+      return {
+        id: station.id,
+        name: station.name,
+        address: station.address,
+        position: [station.latitude, station.longitude],
+        status,
+        statusLabel: statusLabels[status],
+        detail: station.detail || "Наблюдений пока нет",
+        confirmationsLabel:
+          station.confirmations === undefined
+            ? "Нет данных"
+            : `${station.confirmations} подтверждений`,
+        confidenceLabel:
+          station.confidence === undefined
+            ? "Нет данных"
+            : `${Math.round(station.confidence * 100)}% уверенности`,
+        observedAtLabel: station.observedAt
+          ? new Intl.DateTimeFormat("ru-RU", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            }).format(new Date(station.observedAt))
+          : "Нет данных",
+      };
+    });
   }
 }

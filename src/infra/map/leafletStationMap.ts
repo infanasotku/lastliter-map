@@ -8,6 +8,7 @@ const statusColors: Record<StationStatus, string> = {
   queue: "#db7c0a",
   low: "#c2410c",
   no: "#b42318",
+  unknown: "#667085",
 };
 
 export interface StationMapHandle {

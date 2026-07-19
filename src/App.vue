@@ -11,6 +11,7 @@ import {
 const mapElement = ref<HTMLElement | null>(null);
 const stations = ref<StationMapItem[]>([]);
 const selectedId = ref<string | null>(null);
+const canOpenStation = ref(false);
 const error = ref<string | null>(null);
 let mapHandle: StationMapHandle | null = null;
 
@@ -29,6 +30,7 @@ onMounted(async () => {
     const model = await stationController.loadMap();
     stations.value = model.stations;
     selectedId.value = model.selectedId;
+    canOpenStation.value = model.canOpenStation;
     await nextTick();
 
     if (!mapElement.value) return;
@@ -63,7 +65,10 @@ onBeforeUnmount(() => mapHandle?.destroy());
   <div v-if="error" class="map-error" role="alert">{{ error }}</div>
 
   <aside class="station-panel">
-    <nav class="station-tabs" aria-label="Демо-станции">
+    <nav
+      class="station-tabs"
+      :aria-label="canOpenStation ? 'Станции' : 'Демо-станции'"
+    >
       <button
         v-for="station in stations"
         :key="station.id"
@@ -76,6 +81,11 @@ onBeforeUnmount(() => mapHandle?.destroy());
       </button>
     </nav>
 
-    <StationDetails v-if="selectedStation" :station="selectedStation" />
+    <StationDetails
+      v-if="selectedStation"
+      :station="selectedStation"
+      :can-open="canOpenStation"
+      @open="stationController.openStation(selectedStation.id)"
+    />
   </aside>
 </template>
