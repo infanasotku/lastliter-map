@@ -1,17 +1,23 @@
 import type { Station } from "@/domain/station";
-import type { StationHost, StationRepository } from "@/features/stations/ports";
+import type {
+  StationContextProvider,
+  StationRepository,
+} from "@/features/stations/ports";
 
 export class HostAwareStationRepository implements StationRepository {
-  private readonly host: StationHost;
+  private readonly contextProvider: StationContextProvider;
   private readonly fallback: StationRepository;
 
-  constructor(host: StationHost, fallback: StationRepository) {
-    this.host = host;
+  constructor(
+    contextProvider: StationContextProvider,
+    fallback: StationRepository,
+  ) {
+    this.contextProvider = contextProvider;
     this.fallback = fallback;
   }
 
   async getAll(): Promise<Station[]> {
-    const context = await this.host.getContext();
+    const context = await this.contextProvider.getContext();
     return context ? context.stations : this.fallback.getAll();
   }
 }

@@ -1,7 +1,9 @@
 import type { Station } from "@/domain/station";
+import type { NotificationService } from "@/features/notifications/ports";
 import type {
-  StationHost,
+  StationContextProvider,
   StationHostContext,
+  StationNavigator,
 } from "@/features/stations/ports";
 
 const PROTOCOL_VERSION = 2;
@@ -66,12 +68,18 @@ function getParentOrigin(): string | null {
   }
 }
 
-export class PostMessageStationHost implements StationHost {
+export class PostMessageStationHost
+  implements StationContextProvider, StationNavigator
+{
   private readonly embedded = window.parent !== window;
   private readonly parentOrigin = getParentOrigin();
+  private readonly notifications: NotificationService;
   private context: StationHostContext | null = null;
   private contextRequest: Promise<StationHostContext | null> | null = null;
-  private error: string | null = null;
+
+  constructor(notifications: NotificationService) {
+    this.notifications = notifications;
+  }
 
   getContext(): Promise<StationHostContext | null> {
     if (!this.embedded) return Promise.resolve(null);
@@ -81,10 +89,6 @@ export class PostMessageStationHost implements StationHost {
 
   canOpenStation(): boolean {
     return this.context?.canOpenStation === true;
-  }
-
-  getError(): string | null {
-    return this.error;
   }
 
   openStation(stationId: string): void {
@@ -104,17 +108,13 @@ export class PostMessageStationHost implements StationHost {
     return new Promise((resolve) => {
       let settled = false;
 
-      const finish = (
-        context: StationHostContext | null,
-        error: string | null = null,
-      ): void => {
+      const finish = (context: StationHostContext | null): void => {
         if (settled) return;
         settled = true;
         clearInterval(retryId);
         clearTimeout(timeoutId);
         window.removeEventListener("message", onMessage);
         this.context = context;
-        this.error = error;
         resolve(context);
       };
 
@@ -131,10 +131,10 @@ export class PostMessageStationHost implements StationHost {
           event.data.type === "lastliter:admin-context" &&
           event.data.version !== PROTOCOL_VERSION
         ) {
-          finish(
-            null,
+          this.notifications.error(
             `Несовместимая версия карты и панели администратора (карта: ${PROTOCOL_VERSION}, панель: ${String(event.data.version)})`,
           );
+          finish(null);
           return;
         }
 

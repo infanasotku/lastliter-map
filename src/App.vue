@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import "vue-sonner/style.css";
-import { Toaster, toast } from "vue-sonner";
+import { Toaster } from "vue-sonner";
 import { stationController } from "@/container";
 import StationDetails from "@/components/StationDetails.vue";
 import type { StationMapItem } from "@/features/stations/types";
@@ -33,7 +33,6 @@ onMounted(async () => {
     stations.value = model.stations;
     selectedId.value = model.selectedId;
     canOpenStation.value = model.canOpenStation;
-    if (model.hostError) toast.error(model.hostError);
     await nextTick();
 
     if (!mapElement.value) return;

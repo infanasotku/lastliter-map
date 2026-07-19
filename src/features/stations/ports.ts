@@ -9,9 +9,11 @@ export interface StationHostContext {
   canOpenStation: boolean;
 }
 
-export interface StationHost {
+export interface StationContextProvider {
   getContext(): Promise<StationHostContext | null>;
+}
+
+export interface StationNavigator {
   canOpenStation(): boolean;
-  getError(): string | null;
   openStation(stationId: string): void;
 }

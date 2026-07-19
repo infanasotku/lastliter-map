@@ -1,33 +1,31 @@
-import type { StationHost } from "@/features/stations/ports";
+import type { StationNavigator } from "@/features/stations/ports";
 import type { StationService } from "@/features/stations/service";
 import type { StationMapItem } from "@/features/stations/types";
 
 export class StationController {
   private readonly service: StationService;
-  private readonly host: StationHost;
+  private readonly navigator: StationNavigator;
 
-  constructor(service: StationService, host: StationHost) {
+  constructor(service: StationService, navigator: StationNavigator) {
     this.service = service;
-    this.host = host;
+    this.navigator = navigator;
   }
 
   async loadMap(): Promise<{
     stations: StationMapItem[];
     selectedId: string | null;
     canOpenStation: boolean;
-    hostError: string | null;
   }> {
     const stations = await this.service.getMapItems();
 
     return {
       stations,
       selectedId: stations[0]?.id ?? null,
-      canOpenStation: this.host.canOpenStation(),
-      hostError: this.host.getError(),
+      canOpenStation: this.navigator.canOpenStation(),
     };
   }
 
   openStation(stationId: string): void {
-    this.host.openStation(stationId);
+    this.navigator.openStation(stationId);
   }
 }
