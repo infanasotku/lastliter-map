@@ -1,5 +1,4 @@
 @use "variables" as *;
-@use "mixins" as *;
 
 :root {
   color: $text-color;
@@ -80,41 +79,6 @@ button {
   width: min($panel-width, calc(100% - 40px));
 }
 
-.station-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-
-  button {
-    @include glass-surface;
-
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    padding: 10px 13px;
-    overflow: hidden;
-    border-radius: 999px;
-    color: #445049;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    &.active {
-      border-color: #203b28;
-      color: white;
-      background: #203b28;
-    }
-  }
-}
-
-.tab-dot {
-  width: 12px;
-  height: 12px;
-  margin-right: 8px;
-  flex: 0 0 auto;
-  border: 3px solid;
-  border-radius: 50%;
-}
-
 .station-marker-shell {
   border: 0;
   background: none;
@@ -154,10 +118,6 @@ button {
   .station-panel {
     top: auto;
     bottom: 20px;
-  }
-
-  .station-tabs {
-    overflow-x: auto;
   }
 
   .yandex-logo {

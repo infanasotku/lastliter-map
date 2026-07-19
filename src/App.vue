@@ -69,28 +69,6 @@ onBeforeUnmount(() => mapHandle?.destroy());
   <div v-if="error" class="map-error" role="alert">{{ error }}</div>
 
   <aside class="station-panel">
-    <nav
-      class="station-tabs"
-      :aria-label="canOpenStation ? 'Станции' : 'Демо-станции'"
-    >
-      <button
-        v-for="station in stations"
-        :key="station.id"
-        type="button"
-        :class="{ active: station.id === selectedId }"
-        @click="selectStation(station.id)"
-      >
-        <span
-          class="tab-dot"
-          :style="{
-            backgroundColor: station.scoreColor,
-            borderColor: station.confidenceColor,
-          }"
-        />
-        {{ station.name }}
-      </button>
-    </nav>
-
     <StationDetails
       v-if="selectedStation"
       :station="selectedStation"
