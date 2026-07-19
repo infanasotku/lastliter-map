@@ -87,6 +87,10 @@ export class PostMessageStationHost
     return this.contextRequest;
   }
 
+  hasHost(): boolean {
+    return this.embedded;
+  }
+
   canOpenStation(): boolean {
     return this.context?.canOpenStation === true;
   }
@@ -151,10 +155,12 @@ export class PostMessageStationHost
 
       window.addEventListener("message", onMessage);
       const retryId = window.setInterval(announceReady, READY_RETRY_MS);
-      const timeoutId = window.setTimeout(
-        () => finish(null),
-        CONTEXT_TIMEOUT_MS,
-      );
+      const timeoutId = window.setTimeout(() => {
+        this.notifications.error(
+          "Не удалось получить данные станций от панели администратора",
+        );
+        finish(null);
+      }, CONTEXT_TIMEOUT_MS);
       announceReady();
     });
   }

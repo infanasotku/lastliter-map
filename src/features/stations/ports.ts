@@ -11,6 +11,7 @@ export interface StationHostContext {
 
 export interface StationContextProvider {
   getContext(): Promise<StationHostContext | null>;
+  hasHost(): boolean;
 }
 
 export interface StationNavigator {

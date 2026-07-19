@@ -18,6 +18,8 @@ export class HostAwareStationRepository implements StationRepository {
 
   async getAll(): Promise<Station[]> {
     const context = await this.contextProvider.getContext();
-    return context ? context.stations : this.fallback.getAll();
+    if (context) return context.stations;
+    if (this.contextProvider.hasHost()) return [];
+    return this.fallback.getAll();
   }
 }
