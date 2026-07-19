@@ -1,42 +1,46 @@
-import type { Station } from '@/domain/station';
+import type { Station } from "@/domain/station";
 import type {
   StationHost,
   StationHostContext,
-} from '@/features/stations/ports';
+} from "@/features/stations/ports";
 
-const PROTOCOL_VERSION = 1;
+const PROTOCOL_VERSION = 2;
 const CONTEXT_TIMEOUT_MS = 1_500;
 const READY_RETRY_MS = 250;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function parseStation(value: unknown): Station | null {
   if (!isRecord(value)) return null;
 
-  const { id, name, address, latitude, longitude } = value;
+  const { id, name, address, latitude, longitude, score, confidence } = value;
   if (
-    typeof id !== 'string' ||
-    typeof name !== 'string' ||
-    typeof address !== 'string' ||
-    typeof latitude !== 'number' ||
+    typeof id !== "string" ||
+    typeof name !== "string" ||
+    typeof address !== "string" ||
+    typeof latitude !== "number" ||
     !Number.isFinite(latitude) ||
-    typeof longitude !== 'number' ||
-    !Number.isFinite(longitude)
+    typeof longitude !== "number" ||
+    !Number.isFinite(longitude) ||
+    (score !== null &&
+      (typeof score !== "number" || !Number.isFinite(score))) ||
+    (confidence !== null &&
+      (typeof confidence !== "number" || !Number.isFinite(confidence)))
   ) {
     return null;
   }
 
-  return { id, name, address, latitude, longitude };
+  return { id, name, address, latitude, longitude, score, confidence };
 }
 
 function parseContext(value: unknown): StationHostContext | null {
   if (
     !isRecord(value) ||
-    value.type !== 'lastliter:admin-context' ||
+    value.type !== "lastliter:admin-context" ||
     value.version !== PROTOCOL_VERSION ||
-    value.mode !== 'admin' ||
+    value.mode !== "admin" ||
     !Array.isArray(value.stations) ||
     !isRecord(value.capabilities)
   ) {
@@ -67,6 +71,7 @@ export class PostMessageStationHost implements StationHost {
   private readonly parentOrigin = getParentOrigin();
   private context: StationHostContext | null = null;
   private contextRequest: Promise<StationHostContext | null> | null = null;
+  private error: string | null = null;
 
   getContext(): Promise<StationHostContext | null> {
     if (!this.embedded) return Promise.resolve(null);
@@ -78,16 +83,20 @@ export class PostMessageStationHost implements StationHost {
     return this.context?.canOpenStation === true;
   }
 
+  getError(): string | null {
+    return this.error;
+  }
+
   openStation(stationId: string): void {
     if (!this.embedded || !this.canOpenStation()) return;
 
     window.parent.postMessage(
       {
-        type: 'lastliter:station-open',
+        type: "lastliter:station-open",
         version: PROTOCOL_VERSION,
         stationId,
       },
-      this.parentOrigin ?? '*',
+      this.parentOrigin ?? "*",
     );
   }
 
@@ -95,13 +104,17 @@ export class PostMessageStationHost implements StationHost {
     return new Promise((resolve) => {
       let settled = false;
 
-      const finish = (context: StationHostContext | null): void => {
+      const finish = (
+        context: StationHostContext | null,
+        error: string | null = null,
+      ): void => {
         if (settled) return;
         settled = true;
         clearInterval(retryId);
         clearTimeout(timeoutId);
-        window.removeEventListener('message', onMessage);
+        window.removeEventListener("message", onMessage);
         this.context = context;
+        this.error = error;
         resolve(context);
       };
 
@@ -113,18 +126,30 @@ export class PostMessageStationHost implements StationHost {
           return;
         }
 
+        if (
+          isRecord(event.data) &&
+          event.data.type === "lastliter:admin-context" &&
+          event.data.version !== PROTOCOL_VERSION
+        ) {
+          finish(
+            null,
+            `Несовместимая версия карты и панели администратора (карта: ${PROTOCOL_VERSION}, панель: ${String(event.data.version)})`,
+          );
+          return;
+        }
+
         const context = parseContext(event.data);
         if (context) finish(context);
       };
 
       const announceReady = (): void => {
         window.parent.postMessage(
-          { type: 'lastliter:map-ready', version: PROTOCOL_VERSION },
-          this.parentOrigin ?? '*',
+          { type: "lastliter:map-ready", version: PROTOCOL_VERSION },
+          this.parentOrigin ?? "*",
         );
       };
 
-      window.addEventListener('message', onMessage);
+      window.addEventListener("message", onMessage);
       const retryId = window.setInterval(announceReady, READY_RETRY_MS);
       const timeoutId = window.setTimeout(
         () => finish(null),

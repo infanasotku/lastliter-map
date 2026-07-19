@@ -1,4 +1,4 @@
-import type { Station } from "../../domain/station";
+import type { Station } from "@/domain/station";
 
 export interface StationRepository {
   getAll(): Promise<Station[]>;
@@ -12,5 +12,6 @@ export interface StationHostContext {
 export interface StationHost {
   getContext(): Promise<StationHostContext | null>;
   canOpenStation(): boolean;
+  getError(): string | null;
   openStation(stationId: string): void;
 }

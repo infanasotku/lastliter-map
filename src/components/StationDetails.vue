@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { StationMapItem } from "../features/stations/types";
+import type { StationMapItem } from "@/features/stations/types";
 
 defineProps<{
   station: StationMapItem;
@@ -18,26 +18,18 @@ defineEmits<{
         <p class="eyebrow">Станция {{ station.id }}</p>
         <h2>{{ station.name }}</h2>
       </div>
-      <span class="status" :data-status="station.status">
-        {{ station.statusLabel }}
-      </span>
     </header>
 
     <p class="address">{{ station.address }}</p>
-    <p class="detail">{{ station.detail }}</p>
 
-    <dl>
+    <dl v-if="station.score !== null || station.confidence !== null">
       <div>
-        <dt>Доверие</dt>
-        <dd>{{ station.confidenceLabel }}</dd>
+        <dt>Score</dt>
+        <dd>{{ station.score?.toFixed(2) ?? "Нет данных" }}</dd>
       </div>
       <div>
-        <dt>Сигналы</dt>
-        <dd>{{ station.confirmationsLabel }}</dd>
-      </div>
-      <div>
-        <dt>Наблюдение</dt>
-        <dd>{{ station.observedAtLabel }}</dd>
+        <dt>Confidence</dt>
+        <dd>{{ station.confidence?.toFixed(2) ?? "Нет данных" }}</dd>
       </div>
     </dl>
 
@@ -86,45 +78,10 @@ h2 {
   letter-spacing: -0.035em;
 }
 
-.status {
-  padding: 6px 9px;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  color: #7a2e0e;
-  background: #ffead5;
-  font-size: 11px;
-  font-weight: 750;
-}
-
-.status[data-status="yes"] {
-  color: #17633a;
-  background: #dcf4e6;
-}
-
-.status[data-status="no"] {
-  color: #891f1f;
-  background: #ffe2e0;
-}
-
-.status[data-status="unknown"] {
-  color: #475467;
-  background: #eaecf0;
-}
-
 .address {
-  margin: 8px 0 18px;
+  margin: 8px 0 0;
   color: #657068;
   font-size: 13px;
-}
-
-.detail {
-  margin: 0;
-  padding: 14px 16px;
-  border-radius: 14px;
-  color: #23392a;
-  background: #edf3ec;
-  font-weight: 650;
-  line-height: 1.45;
 }
 
 dl {
@@ -132,10 +89,6 @@ dl {
   grid-template-columns: repeat(2, 1fr);
   margin: 18px 0 0;
   gap: 14px;
-}
-
-dl div:last-child {
-  grid-column: 1 / -1;
 }
 
 dt {

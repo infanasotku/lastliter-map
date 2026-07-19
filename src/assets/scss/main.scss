@@ -107,31 +107,12 @@ button {
 }
 
 .tab-dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   margin-right: 8px;
   flex: 0 0 auto;
+  border: 3px solid;
   border-radius: 50%;
-
-  &[data-status="yes"] {
-    background: #2f855a;
-  }
-
-  &[data-status="queue"] {
-    background: #f6a723;
-  }
-
-  &[data-status="low"] {
-    background: #f97316;
-  }
-
-  &[data-status="no"] {
-    background: #e5484d;
-  }
-
-  &[data-status="unknown"] {
-    background: #667085;
-  }
 }
 
 .station-marker-shell {
@@ -145,7 +126,7 @@ button {
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 4px solid white;
+  border: 6px solid var(--marker-border-color);
   border-radius: 50% 50% 50% 8px;
   background: var(--marker-color);
   box-shadow: 0 9px 24px rgba(25, 41, 29, 0.34);

@@ -1,6 +1,6 @@
-import type { StationHost } from "./ports";
-import type { StationService } from "./service";
-import type { StationMapItem } from "./types";
+import type { StationHost } from "@/features/stations/ports";
+import type { StationService } from "@/features/stations/service";
+import type { StationMapItem } from "@/features/stations/types";
 
 export class StationController {
   private readonly service: StationService;
@@ -15,6 +15,7 @@ export class StationController {
     stations: StationMapItem[];
     selectedId: string | null;
     canOpenStation: boolean;
+    hostError: string | null;
   }> {
     const stations = await this.service.getMapItems();
 
@@ -22,6 +23,7 @@ export class StationController {
       stations,
       selectedId: stations[0]?.id ?? null,
       canOpenStation: this.host.canOpenStation(),
+      hostError: this.host.getError(),
     };
   }
 

@@ -1,15 +1,6 @@
 import L, { type Map as LeafletMap, type Marker } from "leaflet";
 import { getYandexTilesApiKey } from "@/config/runtime";
-import type { StationStatus } from "../../domain/station";
-import type { StationMapItem } from "../../features/stations/types";
-
-const statusColors: Record<StationStatus, string> = {
-  yes: "#2f855a",
-  queue: "#db7c0a",
-  low: "#c2410c",
-  no: "#b42318",
-  unknown: "#667085",
-};
+import type { StationMapItem } from "@/features/stations/types";
 
 export interface StationMapHandle {
   destroy(): void;
@@ -24,17 +15,16 @@ interface CreateStationMapOptions {
 }
 
 function createMarker(station: StationMapItem): Marker {
-  const color = statusColors[station.status];
   const icon = L.divIcon({
     className: "station-marker-shell",
-    html: `<span class="station-marker" style="--marker-color: ${color}" aria-hidden="true"><span></span></span>`,
+    html: `<span class="station-marker" style="--marker-color: ${station.scoreColor}; --marker-border-color: ${station.confidenceColor}" aria-hidden="true"><span></span></span>`,
     iconSize: [42, 48],
     iconAnchor: [21, 44],
     tooltipAnchor: [0, -40],
   });
 
   return L.marker(station.position, { icon, title: station.name }).bindTooltip(
-    `${station.name} · ${station.statusLabel}`,
+    station.name,
     { direction: "top", offset: [0, -8] },
   );
 }
